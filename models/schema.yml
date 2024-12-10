@@ -1,12 +1,12 @@
 version: 1
 
 sources:
-  - name: gz_raw_data
-    schema: raw  # Alias for the dataset
+  - name: raw  # Alias for the dataset (used in dbt references)
+    schema: gz_raw_data  # Actual name of the dataset in BigQuery
     tables:
-      - name: raw_gz_sales
-        alias: sales  # Alias for the table
-      - name: raw_gz_product
-        alias: product  # Alias for the table
-      - name: raw_gz_ship
-        alias: ship  # Alias for the table
+      - name: sales  # Alias for the table in dbt
+        identifier: raw_gz_sales  # Actual table name in the database
+      - name: product
+        identifier: raw_gz_product
+      - name: ship
+        identifier: raw_gz_ship
