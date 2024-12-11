@@ -1,3 +1,4 @@
+
 select
     date_date,
     count(orders_id) as transaction_amounts,
