@@ -1,12 +1,56 @@
-version: 1
+version: 2
 
 sources:
-  - name: raw  # Alias for the dataset (used in dbt references)
-    schema: gz_raw_data  # Actual name of the dataset in BigQuery
+  - name: raw
+    schema: gz_raw_data
     tables:
-      - name: sales  # Alias for the table in dbt
-        identifier: raw_gz_sales  # Actual table name in the database
+      - name: sales
+        identifier: raw_gz_sales
+        description: Sales of Greenweez, with one row per product_id in each orders_id.
+        loaded_at_field: "CAST(date_date AS TIMESTAMP)"
+        freshness:
+          warn_after: {count: 90, period: day}
+        columns:
+          - name: date_date
+            description: Date of purchase.
+          - name: orders_id
+            description: Unique identifier for each order.
+          - name: pdt_id
+            description: Unique identifier for the product in the order.
+          - name: revenue
+            description: Revenue generated from the sale.
+          - name: quantity
+            description: Number of units sold.
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - orders_id
+                - pdt_id  # This is the combination of primary key columns.
+
       - name: product
         identifier: raw_gz_product
+        description: Contains information about products available for sale.
+        columns:
+          - name: products_id
+            description: Unique identifier for each product.
+            tests:
+              - unique  # Ensures that each product_id is unique.
+              - not_null  # Ensures no product_id is NULL.
+          - name: purchase_price
+            description: Cost to purchase the product, cast as a FLOAT64 for calculations.
+
       - name: ship
         identifier: raw_gz_ship
+        description: Contains shipping details and costs associated with each order.
+        columns:
+          - name: orders_id
+            description: Unique identifier for each order.
+            tests:
+              - unique  # Ensures no duplicate orders.
+              - not_null  # Ensures no NULL orders_id.
+          - name: shipping_fee
+            description: Fee charged for shipping the order.
+          - name: logcost
+            description: Log-transformed value of shipping-related costs.
+          - name: ship_cost
+            description: Actual shipping cost, cast as a FLOAT64 for calculations.
