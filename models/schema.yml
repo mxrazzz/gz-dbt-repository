@@ -10,7 +10,7 @@ sources:
         description: Sales of Greenweez, with one row per product_id in each orders_id.
         loaded_at_field: "CAST(date_date AS TIMESTAMP)"
         freshness:
-          warn_after: {count: 90, period: day}
+          warn_after: { count: 90, period: day }
         columns:
           - name: date_date
             description: Date of purchase.
@@ -35,8 +35,8 @@ sources:
           - name: products_id
             description: Unique identifier for each product.
             tests:
-              - unique  # Ensures that each product_id is unique.
-              - not_null  # Ensures no product_id is NULL.
+              - unique # Ensures that each product_id is unique.
+              - not_null # Ensures no product_id is NULL.
           - name: purchase_price
             description: Cost to purchase the product, cast as a FLOAT64 for calculations.
 
@@ -47,8 +47,8 @@ sources:
           - name: orders_id
             description: Unique identifier for each order.
             tests:
-              - unique  # Ensures no duplicate orders.
-              - not_null  # Ensures no NULL orders_id.
+              - unique # Ensures no duplicate orders.
+              - not_null # Ensures no NULL orders_id.
           - name: shipping_fee
             description: Fee charged for shipping the order.
           - name: logcost
@@ -56,6 +56,49 @@ sources:
           - name: ship_cost
             description: Actual shipping cost, cast as a FLOAT64 for calculations.
 
+      - name: adwords
+        identifier: raw_gz_adwords
+        description: Data for ad campaigns run on Google AdWords.
+        columns:
+          - name: campaign_id
+            description: Unique identifier for each AdWords campaign.
+          - name: clicks
+            description: Total clicks for the campaign.
+          - name: impressions
+            description: Total impressions for the campaign.
+
+      - name: bing
+        identifier: raw_gz_bing
+        description: Data for ad campaigns run on Bing Ads.
+        columns:
+          - name: campaign_id
+            description: Unique identifier for each Bing campaign.
+          - name: clicks
+            description: Total clicks for the campaign.
+          - name: impressions
+            description: Total impressions for the campaign.
+
+      - name: criteo
+        identifier: raw_gz_criteo
+        description: Data for ad campaigns run on Criteo.
+        columns:
+          - name: campaign_id
+            description: Unique identifier for each Criteo campaign.
+          - name: clicks
+            description: Total clicks for the campaign.
+          - name: impressions
+            description: Total impressions for the campaign.
+
+      - name: facebook
+        identifier: raw_gz_facebook
+        description: Data for ad campaigns run on Facebook Ads.
+        columns:
+          - name: campaign_id
+            description: Unique identifier for each Facebook campaign.
+          - name: clicks
+            description: Total clicks for the campaign.
+          - name: impressions
+            description: Total impressions for the campaign.
 models:
   - name: int_orders_margin
     description: "Margin calculation per order."
@@ -157,3 +200,46 @@ models:
         description: "The cost of preparing the parcel in the distribution centre/warehouse."
       - name: ship_cost
         description: "Shipping cost paid by Greenweez to the carrier/logistics provider."
+
+  - name: int_campaigns
+    description: data from all campaigns
+    columns:
+      - name: paid_source
+        tests:
+          - not_null
+      - name: campaign_name
+        tests:
+          - not_null
+
+  - name: int_campaigns_day
+    description: Aggregated daily data for ad campaigns.
+    columns:
+      - name: date_date
+        description: The date of the campaigns.
+        tests:
+          - not_null
+          - unique
+      - name: ads_cost
+        description: Total cost of advertisements for the day.
+        tests:
+          - not_null
+      - name: ads_impression
+        description: Total number of impressions for the day.
+        tests:
+          - not_null
+      - name: ads_clicks
+        description: Total number of clicks for the day.
+        tests:
+          - not_null
+
+      - name: finance_campaigns_day
+        description: global kpi
+        columns:
+          - name: ads_margin
+            description: operational_margin - ads_cost
+            tests:
+              - not_null
+          - name: average_basket
+            description: average basket cost for each day
+            tests:
+              - not_null
